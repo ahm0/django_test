@@ -4,7 +4,7 @@ Como vamos a servir la aplicación utilizando el servidor web Apache, debemos in
 
 ```
 sudo yum install epel-release
-sudo yum install python-pip httpd httpd-devel mod_wsgi
+sudo yum install python-pip python3.x86_64 python3-devel httpd httpd-devel 
 ```
 
 # INSTALAR MYSQL
@@ -17,22 +17,22 @@ Descargar repo desde https://dev.mysql.com/downloads/repo/yum/
 
 # Agregar el repo: 
 
-sudo rpm –ivh mysql80-community-release-el7-3.noarch.rpm
+sudo rpm -ivh mysql80-community-release-el7-3.noarch.rpm 
 
 # Instalar el server: 
 
-sudo yum install mysql-server
+sudo yum install mysql-server mysql-devel 
 
 # Iniciar el servicio: 
 
-sudo systemctl start mysqld`
+sudo systemctl start mysqld
 ```
 
 ## Configurar mysql
 
 Buscar el password por defecto que genera: 
 
-`sudo grep ‘temporary password’ /var/log/mysqld.log`
+`sudo grep "temporary password" /var/log/mysqld.log`
 
 Para configurar la instancia, debemos ejecutar: 
 
@@ -41,6 +41,9 @@ Para configurar la instancia, debemos ejecutar:
 ## Configurar la base
 
 ```sql
+
+mysql -u root -p 
+
 create database django_project character set = latin1;
 
 create user panel@localhost identified by 'Panel.1234';
@@ -57,16 +60,14 @@ flush privileges;
 ## Instalar python y virtualenv
 
 ```
-sudo yum install python3.x86_64
-
-pip install virtualenv
+sudo pip install virtualenv
 ```
 
 ## Configurar entorno virtual
 
 Crear directorio donde vamos a alojar el proyecto
 
-`mkdir /var/www/proyecto`
+`sudo mkdir /var/www/proyecto`
 
 Crear el entorno virtual
 
@@ -84,13 +85,7 @@ Activar el entorno virtual
 
 Para la aplicación vamos a utilizar como motor de base de datos MySQL, por lo tanto debemos instalar el paquete mysqlclient que nos permite trabajar con dicho motor desde python.
 
-```
-sudo yum install python3-devel mysql-devel
-
-pip install mysqlclient
-```
-
-Ahora si, instalamos el framework. Para esto creamos el archivo *requirements.txt* y vamos a incluir todas las dependencias a instalar:
+Además debemos instalamos el framework. Para esto creamos el archivo *requirements.txt* y vamos a incluir todas las dependencias a instalar:
 
 ```
 django
@@ -98,7 +93,7 @@ djangorestframework
 markdown
 django-filter
 django-guardian
-
+mysqlclient
 ```
 Para instalar sólo debemos ejecutar:
 
@@ -135,7 +130,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 Ahora, ejecutamos el comando *migrate* para crear las estructuras básicas en la base de datos.
 
-`python manage.py migrate`
+```
+./manage.py makemigrations
+./manage.py migrate
+```
+
+Crear un usuario administrador
+
+`./manage.py createsuperuser`
+
+Generar contenido estático:
+
+`./manage.py collectstatic`
 
 ## Servir la app con Apache
 
